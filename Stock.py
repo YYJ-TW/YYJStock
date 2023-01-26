@@ -2,6 +2,8 @@ import pandas as pd
 import yfinance as yf
 import twstock as stock
 import matplotlib.pyplot as plt
+import requests
+from bs4 import BeautifulSoup
 
 code = input('輸入股票代碼：')
 
@@ -30,12 +32,18 @@ if code.isdigit():
         print('股票代碼輸入有誤！')
         
 if code.isalpha():
-    start = input('輸入開始日期(格式：西元年份-月-日)：')
-    end = input('輸入結束日期(格式：西元年份-月-日)：')
-    history = yf.download(code, start=start, end=end)
-    print(history)
-    plt.style.use('ggplot')
-    history['Adj Close'].plot(figsize=(10,6))
-    chart = pd.DataFrame(history['Adj Close']).reset_index().rename(columns={'Date':'ds', 'Adj Close':'y'})
-    chart.head()
-    plt.show()
+    url = f'https://finance.yahoo.com/quote/{code}/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    if soup.find('fin-streamer', {'class': 'Fw(b) Fz(36px) Mb(-4px) D(ib)'}):
+        start = input('輸入開始日期(格式：西元年份-月-日)：')
+        end = input('輸入結束日期(格式：西元年份-月-日)：')
+        history = yf.download(code, start=start, end=end)
+        print(history)
+        plt.style.use('ggplot')
+        history['Adj Close'].plot(figsize=(10,6))
+        chart = pd.DataFrame(history['Adj Close']).reset_index().rename(columns={'Date':'ds', 'Adj Close':'y'})
+        chart.head()
+        plt.show()
+    else:
+        print(f'股票代碼輸入有誤！')
