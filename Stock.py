@@ -1,4 +1,5 @@
 import twstock as stock
+
 class Get:
     def stock(self, code):
         search = stock.Stock(code)

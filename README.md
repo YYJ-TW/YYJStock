@@ -5,3 +5,4 @@
 股價查詢功能使用 [twstock](https://github.com/mlouielu/twstock) 模組  
 GUI 使用 [kivy](https://github.com/kivy/kivy) 模組  
 字型使用「jf open 粉圓」由 [justfont](https://github.com/justfont/open-huninn-font) 設計  
+使用 [yfinance](https://github.com/ranaroussi/yfinance) 和 [mplfinance](https://github.com/matplotlib/mplfinance) 生成 K線 和 成交量  
