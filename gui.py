@@ -33,8 +33,9 @@ class MyApp(App):
 
     def on_enter(self, instance):
         code = instance.text
-        data = Get().stock(code)
-        text = f"開盤：{data['open']}\n收盤：{data['close']}\n最高：{data['high']}\n最低：{data['low']}"
+        data = Get().price(code)
+        four = Get().best(code)
+        text = f"開盤：{data['open']}\n收盤：{data['close']}\n最高：{data['high']}\n最低：{data['low']}\n是否為四大買點：{four['buy']}\n是否為四大賣點：{four['sell']}\n綜合判斷：{four['point']}"
         self.label.text = text
         generate_chart(code)
         self.img.source = 'chart.png'
