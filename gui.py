@@ -33,13 +33,16 @@ class MyApp(App):
 
     def on_enter(self, instance):
         code = instance.text
-        data = Get().price(code)
-        four = Get().best(code)
-        text = f"開盤：{data['open']}\n收盤：{data['close']}\n最高：{data['high']}\n最低：{data['low']}\n是否為四大買點：{four['buy']}\n是否為四大賣點：{four['sell']}\n綜合判斷：{four['point']}"
-        self.label.text = text
-        generate_chart(code)
-        self.img.source = 'chart.png'
-        self.img.reload()
+        goodinfo = Get().goodinfo(code)
+        price = Get().price(goodinfo.get('stock_id'))
+        self.label.text = str('股票代碼：' + goodinfo.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
+        try:
+            generate_chart(goodinfo.get('stock_id'))
+            self.img.source = 'chart.png'
+            self.img.reload()
+        except:
+            self.img.source = 'oops.png'
+            self.img.reload()
 
 if __name__ == '__main__':
     MyApp().run()

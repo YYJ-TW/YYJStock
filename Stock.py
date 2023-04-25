@@ -1,19 +1,32 @@
-import twstock as stock
-from twstock import BestFourPoint
+
+import re
+import requests
+import yfinance as yf
+from bs4 import BeautifulSoup
 
 class Get:
+    def goodinfo(self, code):
+        url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
+        res = requests.get(url, headers=headers)
+        res.encoding = 'utf-8'
+        html = res.text
+        soup = BeautifulSoup(html, 'html.parser')
+
+        if '您的瀏覽量異常, 已影響網站速度, 目前暫時關閉服務' in html:
+            error = '暫時無法讀取資料'
+            return {'stock_id': error}
+        else:
+            for link in soup.find_all('a', class_='link_blue'):
+                if re.search('StockDetail\.asp\?STOCK_ID=(\d+)', link.get('href')):
+                    stock_id = re.search('STOCK_ID=(\d+)', link.get('href')).group(1)
+                    return {'stock_id': stock_id}
+
+
     def price(self, code):
-        search = stock.Stock(code)
-        open_price = search.open[-1]
-        close_price = search.close[-1]
-        high_price = search.high[-1] 
-        low_price = search.low[-1]
-        return {'open': open_price, 'close': close_price, 'high': high_price, 'low': low_price}
-    
-    def best(self, code):
-        search = stock.Stock(code)
-        bfp = BestFourPoint(search)
-        buy = bfp.best_four_point_to_buy()
-        sell = bfp.best_four_point_to_sell()
-        point = bfp.best_four_point()
-        return {'buy': buy, 'sell': sell, 'point': point}
+        data = yf.download(code + '.TW', period = '1d')
+        open = str(data.iloc[0]['Open'])
+        close = str(data.iloc[0]['Close'])
+        high = str(data.iloc[0]['High'])
+        low = str(data.iloc[0]['Low'])
+        return {'open': open, 'close': close, 'high': high, 'low': low}

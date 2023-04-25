@@ -1,7 +1,9 @@
-import yfinance as yf
-import mplfinance as mpf
+# Data
 import os
 from datetime import datetime, timedelta
+# Chart
+import yfinance as yf
+import mplfinance as mpf
 
 today = datetime.today()
 end_date = today.strftime('%Y-%m-%d')
