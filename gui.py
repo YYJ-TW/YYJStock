@@ -22,7 +22,7 @@ Builder.load_string(kv)
 class MyApp(App):
     def build(self):
         layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        self.input = TextInput(hint_text='輸入股票代碼', multiline=False, size_hint=(1, None), height=50)
+        self.input = TextInput(hint_text='輸入股票名稱或代碼', multiline=False, size_hint=(1, None), height=50)
         self.input.bind(on_text_validate=self.on_enter)
         layout.add_widget(self.input)
         self.label = Label(text='', size_hint=(1, 1))
@@ -33,11 +33,12 @@ class MyApp(App):
 
     def on_enter(self, instance):
         code = instance.text
-        goodinfo = Get().goodinfo(code)
-        price = Get().price(goodinfo.get('stock_id'))
-        self.label.text = str('股票代碼：' + goodinfo.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
+        get = Get()
+        search = get.search(code)
+        price = get.price(search.get('stock_id'))
+        self.label.text = str('股票代碼：' + search.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
         try:
-            generate_chart(goodinfo.get('stock_id'))
+            generate_chart(search.get('stock_id'))
             self.img.source = 'chart.png'
             self.img.reload()
         except:
