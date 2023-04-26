@@ -5,4 +5,8 @@
 GUI 使用 [kivy](https://github.com/kivy/kivy) 模組  
 字型使用「jf open 粉圓」由 [justfont](https://github.com/justfont/open-huninn-font) 設計  
 使用 [yfinance](https://github.com/ranaroussi/yfinance) 查詢股價  
-使用 [mplfinance](https://github.com/matplotlib/mplfinance) 生成K線和交易量圖表  
+使用 [mplfinance](https://github.com/matplotlib/mplfinance) 生成K線和交易量圖表 
+使用 [goodinfo](https://goodinfo.tw) 將股票名稱轉換成股票代碼   
+## 速率限制
+Yahoo Finance API 每小時 2000 次 / 1 IP (約等於 每秒 2次)  
+Goodinfo! 台灣股市資訊網 未知  

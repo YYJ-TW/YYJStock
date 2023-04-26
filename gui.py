@@ -27,8 +27,11 @@ class YYJStock(App):
     def on_enter(self, instance):
         code = instance.text
         search = Get().search(code)
-        price = Get().price(search.get('stock_id'))
-        self.root.ids.label.text = str('股票代碼：' + search.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
+        stock_id = search.get('stock_id')
+        price = Get().price(stock_id)
+        financial = Get().financial(stock_id)
+        self.root.ids.label.text = '股票代碼：' + stock_id + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low']
+        self.root.ids.financial.text = str('目前本益比：' + financial['pe'])
         try:
             generate_chart(search.get('stock_id'))
             self.root.ids.img.source = 'chart.png'

@@ -1,5 +1,7 @@
 
+from ast import expr_context
 import re
+from tracemalloc import stop
 import requests
 import yfinance as yf
 from bs4 import BeautifulSoup
@@ -34,3 +36,12 @@ class Get:
         high = str(data.iloc[0]['High'])
         low = str(data.iloc[0]['Low'])
         return {'open': open, 'close': close, 'high': high, 'low': low}
+
+    def financial(self, code):
+        try:
+            data = yf.Ticker(code)
+            pe = data.info['trailingPE']
+            pe_rounded = '{:.2f}'.format(pe)
+            return {'pe': pe_rounded}
+        except KeyError:
+            return {'pe': '查無本益比資訊'}
