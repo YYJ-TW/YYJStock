@@ -4,10 +4,7 @@ from chart import generate_chart
 # GUI
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.image import Image
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.tabbedpanel import TabbedPanel
 
 kv = '''
 <TextInput>:
@@ -18,32 +15,27 @@ kv = '''
 '''
 
 Builder.load_string(kv)
+Builder.load_file('kivy.kv')
 
-class MyApp(App):
+class MyLayout(TabbedPanel):
+    pass
+
+class YYJStock(App):
     def build(self):
-        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        self.input = TextInput(hint_text='輸入股票名稱或代碼', multiline=False, size_hint=(1, None), height=50)
-        self.input.bind(on_text_validate=self.on_enter)
-        layout.add_widget(self.input)
-        self.label = Label(text='', size_hint=(1, 1))
-        self.img = Image()
-        layout.add_widget(self.label)
-        layout.add_widget(self.img)
-        return layout
+        return MyLayout()
 
     def on_enter(self, instance):
         code = instance.text
-        get = Get()
-        search = get.search(code)
-        price = get.price(search.get('stock_id'))
-        self.label.text = str('股票代碼：' + search.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
+        search = Get().search(code)
+        price = Get().price(search.get('stock_id'))
+        self.root.ids.label.text = str('股票代碼：' + search.get('stock_id') + '\n開盤：' + price['open'] + '\n收盤：' + price['close'] + '\n最高：' + price['high'] + '\n最低：' + price['low'])
         try:
             generate_chart(search.get('stock_id'))
-            self.img.source = 'chart.png'
-            self.img.reload()
+            self.root.ids.img.source = 'chart.png'
+            self.root.ids.img.reload()
         except:
-            self.img.source = 'oops.png'
-            self.img.reload()
+            self.root.ids.img.source = 'oops.png'
+            self.root.ids.img.reload()
 
 if __name__ == '__main__':
-    MyApp().run()
+    YYJStock().run()

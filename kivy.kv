@@ -1,0 +1,25 @@
+<MyLayout>
+    do_default_tab: False
+    id: mylayout_id
+    TabbedPanelItem:
+        text: '股價查詢'
+        BoxLayout:
+            orientation: 'vertical'
+            TextInput:
+                hint_text: '輸入股票名稱或代碼'
+                multiline: False
+                size_hint: (1, None)
+                height: 50
+                on_text_validate: app.on_enter(self)
+            Label:
+                id: label
+                size_hint: (1, 1)
+            Image:
+                id: img
+    TabbedPanelItem:
+        text: '基本財報'
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                text: '製作中'
+                size_hint: (1, 1)
