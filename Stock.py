@@ -5,6 +5,10 @@ import yfinance as yf
 from bs4 import BeautifulSoup
 
 class Get:
+    def __init__(self):
+        self.stock_id = None
+        self.stock_type = None
+
     def search(self, code):
         try:
             with open('csv/twse.csv', 'r') as twse:
@@ -12,15 +16,19 @@ class Get:
                 for row in reader:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
+                            self.stock_id = row[0] + '.TW'
+                            self.stock_type = row[5]
                             print('上市公司股票編號' + row[0] + ' 公司類型：' + row[5])
-                            return {'stock_id': row[0] + '.TW', 'type': row[5]}
+                            return {'stock_id': self.stock_id, 'type': self.stock_type}
             with open('csv/tpex.csv', 'r') as tpex:
                 reader = csv.reader(tpex)
                 for row in reader:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
+                            self.stock_id = row[0] + '.TWO'
+                            self.stock_type = row[5]
                             print('上櫃公司股票編號：' + row[0] + ' 公司類型：' + row[5])
-                            return {'stock_id': row[0] + '.TWO', 'type': row[5]}
+                            return {'stock_id': self.stock_id, 'type': self.stock_type}
             return None
             
         except:
@@ -67,7 +75,7 @@ class Get:
                 'bv': '查無EPS資訊',
             }
     
-    def goodinfo_fin(self, code, years = 5):
+    def goodinfo_fin(self, code, n, years = 5):
         code = re.sub(r'\.(TW|TWO)$', '', code)
         url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
         print(url)
@@ -85,7 +93,7 @@ class Get:
         for row in rows:
             tds = row.find_all('td')
             if len(tds) > 1:
-                td = tds[12].text.strip()
+                td = tds[n].text.strip()
                 if not re.search('[\u4e00-\u9fff]', td):
                     td_list.append(td)
                     count += 1

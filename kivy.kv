@@ -8,8 +8,10 @@
             TextInput:
                 hint_text: '輸入股票名稱或代碼'
                 multiline: False
-                size_hint: (1, None)
+                size_hint: (None, None)
                 height: 50
+                width: 500
+                pos_hint: {'center_x': 0.5}
                 on_text_validate: app.on_enter(self)
             Label:
                 id: label
