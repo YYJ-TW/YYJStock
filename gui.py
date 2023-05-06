@@ -41,7 +41,6 @@ class YYJStock(App):
             generate_chart(search.get('stock_id'))
             self.root.ids.img.source = 'chart.png'
             self.root.ids.img.reload()
-            
 
 if __name__ == '__main__':
     YYJStock().run()
