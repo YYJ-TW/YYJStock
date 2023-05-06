@@ -12,15 +12,15 @@ class Get:
                 for row in reader:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
-                            print('上市公司股票編號' + row[0])
-                            return {'stock_id': row[0] + '.TW'}
+                            print('上市公司股票編號' + row[0] + ' 公司類型：' + row[5])
+                            return {'stock_id': row[0] + '.TW', 'type': row[5]}
             with open('csv/tpex.csv', 'r') as tpex:
                 reader = csv.reader(tpex)
                 for row in reader:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
-                            print('上櫃公司股票編號：' + row[0])
-                            return {'stock_id': row[0] + '.TWO'}
+                            print('上櫃公司股票編號：' + row[0] + ' 公司類型：' + row[5])
+                            return {'stock_id': row[0] + '.TWO', 'type': row[5]}
             return None
             
         except:
