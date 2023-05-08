@@ -13,5 +13,5 @@ class Chart():
 
         data = yf.download(code, start = start_date, end = end_date)
         style = mpf.make_mpf_style(base_mpf_style = 'charles', rc = {'font.size': 10})
-        mpf.plot(data, type='candle', style = style, volume = True, savefig = dict(fname = 'chart.png', dpi = 200, bbox_inches = 'tight'))
-        return os.path.abspath('chart.png')
+        mpf.plot(data, type='candle', style = style, volume = True, savefig = dict(fname = 'img/chart.png', dpi = 200, bbox_inches = 'tight'))
+        return os.path.abspath('img/chart.png')
