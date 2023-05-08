@@ -1,6 +1,8 @@
 import re
 import csv
+import datetime
 import requests
+import pandas as pd
 import yfinance as yf
 from bs4 import BeautifulSoup
 
@@ -75,7 +77,7 @@ class Get:
                 'bv': '查無EPS資訊',
             }
     
-    def goodinfo_fin(self, code, n, years = 5):
+    def goodinfo_fin(self, code, columns, years):
         code = re.sub(r'\.(TW|TWO)$', '', code)
         url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
         print(url)
@@ -87,18 +89,22 @@ class Get:
         table = soup.find('div', {'id': 'txtFinDetailData'}).find('table')
         rows = table.find_all('tr')
 
-        td_list = []
+        data = []
         count = 0
 
         for row in rows:
             tds = row.find_all('td')
-            if len(tds) > 1:
-                td = tds[n].text.strip()
-                if not re.search('[\u4e00-\u9fff]', td):
-                    td_list.append(td)
-                    count += 1
-                    if count >= years:
-                        break
-        return {
-            'profit': str(td_list),
-        }
+            if len(tds) > 1: # Avoid None
+                values = []
+                for col in columns:
+                    if col < len(tds):
+                        value = tds[col].text.strip()
+                        if not re.search('[\u4e00-\u9fff]', value):
+                            values.append(value)
+                data.append(values)
+                count += 1
+                if count >= years:
+                    break
+
+        df = pd.DataFrame(data, columns = values)
+        return df
