@@ -1,6 +1,6 @@
 # YYJStock
 ## Introduction
-[Chinese Version](README.md)
+[Chinese Version](README.md)  
 Capture stock market data and analyze stock selection, buy and sell signals with software assistance to save research time!
 ## Features
 - Stock price and financial information lookup

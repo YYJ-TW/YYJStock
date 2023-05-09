@@ -1,6 +1,6 @@
 # YYJStock
 ## 簡介
-[English Version](en_US.md)
+[English Version](en_US.md)  
 股市資料一把抓，由軟體協助選股、買進和賣出訊號分析，節省研究時間！
 ## 功能介紹
 - 股價、財報資訊查詢
