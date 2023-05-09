@@ -1,4 +1,5 @@
 venv
 *.pyc
+test.py
 *.DS_Store
 __pycache__
