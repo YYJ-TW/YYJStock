@@ -106,9 +106,15 @@ class Get:
                 if count >= years:
                     break
         
+        # Index year
         end_year = datetime.datetime.today().year
         start_year = end_year - years + 1
         index = range(start_year, end_year + 1)[::-1]
         df = pd.DataFrame(data, index = index, columns = values)
+
+        # First columns
+        mapping = {12: '毛利(%)', 13: '利益(%)', 14: '損益(%)', 15: '淨利(%)'}
+        labels = [mapping.get(col) for col in columns]
+        df.columns = labels
 
         return df

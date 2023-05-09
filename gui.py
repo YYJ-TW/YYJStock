@@ -53,7 +53,7 @@ class YYJStock(App):
         get = Get()
         price = get.price(stock_id)
         yf_fin = get.yf_fin(stock_id)
-        fin = get.goodinfo_fin(stock_id, [3], 5)
+        fin = get.goodinfo_fin(stock_id, [12,13,14,15], 5)
         print(fin)
 
         label_text = f'股票代碼：{stock_id}\n公司類型：{stock_type}\n開盤：{price["open"]}\n收盤：{price["close"]}\n最高：{price["high"]}\n最低：{price["low"]}'
