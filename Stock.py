@@ -105,6 +105,10 @@ class Get:
                 count += 1
                 if count >= years:
                     break
+        
+        end_year = datetime.datetime.today().year
+        start_year = end_year - years + 1
+        index = range(start_year, end_year + 1)[::-1]
+        df = pd.DataFrame(data, index = index, columns = values)
 
-        df = pd.DataFrame(data, columns = values)
         return df
