@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 class Get:
     def __init__(self):
         self.stock_id = None
+        self.stock_name = None
         self.stock_type = None
 
     def search(self, code):
@@ -19,18 +20,20 @@ class Get:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
                             self.stock_id = row[0] + '.TW'
+                            self.stock_name = row[1]
                             self.stock_type = row[5]
-                            print('上市公司股票編號' + row[0] + ' 公司類型：' + row[5])
-                            return {'stock_id': self.stock_id, 'type': self.stock_type}
+                            print('上櫃公司股票代碼：' + row[0] + ' 上市公司股票名稱：' + row[1] + ' 公司類型：' + row[5])
+                            return {'stock_id': self.stock_id, 'name': self.stock_name,'type': self.stock_type}
             with open('csv/tpex.csv', 'r') as tpex:
                 reader = csv.reader(tpex)
                 for row in reader:
                     if len(row) >= 2:
                         if code == row[0] or code == row[1]:
                             self.stock_id = row[0] + '.TWO'
+                            self.stock_name = row[1]
                             self.stock_type = row[5]
-                            print('上櫃公司股票編號：' + row[0] + ' 公司類型：' + row[5])
-                            return {'stock_id': self.stock_id, 'type': self.stock_type}
+                            print('上櫃公司股票代碼：' + row[0] + ' 上櫃公司股票名稱：' + row[1] + ' 公司類型：' + row[5])
+                            return {'stock_id': self.stock_id, 'name': self.stock_name, 'type': self.stock_type}
             return None
             
         except:
