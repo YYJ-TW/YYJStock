@@ -108,15 +108,34 @@ class Get:
                 count += 1
                 if count >= years:
                     break
-        
-        # Index year
-        end_year = datetime.datetime.today().year
-        start_year = end_year - years + 1
-        index = range(start_year, end_year + 1)[::-1]
-        df = pd.DataFrame(data, index = index, columns = values)
+
+        df = pd.DataFrame(data, columns = values)
 
         # First columns
-        mapping = {12: '毛利(%)', 13: '利益(%)', 14: '損益(%)', 15: '淨利(%)'}
+        mapping = {
+            0: '年度',
+            1: '股本(億)',
+            2: '財報評分',
+            3: '收盤',
+            4: '平均',
+            5: '漲跌',
+            6: '漲跌(%)',
+            7: '營業收入',
+            8: '營業毛利',
+            9: '營業利益',
+            10: '業外損益',
+            11: '稅後淨利',
+            12: '營業毛利(%)',
+            13: '營業利益(%)',
+            14: '業外損益(%)', 
+            15: '稅後淨利(%)',
+            16: 'ROE(%)',
+            17: 'ROA(%)',
+            18: '稅後EPS',
+            19: '年增(元)',
+            20: 'BPS(元)'
+            }
+            
         labels = [mapping.get(col) for col in columns]
         df.columns = labels
 
