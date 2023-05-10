@@ -1,10 +1,10 @@
 # Class
 from stock import Get
 from chart import Chart
+from analyze import Analyze
 # GUI
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.slider import Slider
 from kivy.uix.tabbedpanel import TabbedPanel
 
 kv = '''
@@ -54,14 +54,17 @@ class YYJStock(App):
         get = Get()
         price = get.price(stock_id)
         yf_fin = get.yf_fin(stock_id)
-        fin = get.goodinfo_fin(stock_id, [0,12,13,14,15], 5)
+        fin = get.goodinfo_fin(stock_id, [0, 12, 13, 14, 15], 5)
+        analyze = Analyze().basic_fin(fin)
         print(fin)
 
         label_text = f'股票代碼：{stock_id}\n股票名稱：{stock_name}\n公司類型：{stock_type}\n開盤：{price["open"]}\n收盤：{price["close"]}\n最高：{price["high"]}\n最低：{price["low"]}'
         fin_text = f'目前本益比：{yf_fin["pe"]}\n每股淨值：{yf_fin["bv"]}\n基本財報：\n{fin}'
+        analyze_text = f'相比去年毛利率{analyze}'
 
         self.root.ids.label.text = label_text
         self.root.ids.financial.text = fin_text
+        self.root.ids.analyze.text = analyze_text
 
 if __name__ == '__main__':
     YYJStock().run()
