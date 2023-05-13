@@ -55,12 +55,12 @@ class YYJStock(App):
         price = get.price(stock_id)
         yf_fin = get.yf_fin(stock_id)
         fin = get.goodinfo_fin(stock_id, [0, 12, 13, 14, 15], 5)
-        analyze = Analyze().basic_fin(fin)
+        analyze = Analyze()
         print(fin)
 
         label_text = f'股票代碼：{stock_id}\n股票名稱：{stock_name}\n公司類型：{stock_type}\n開盤：{price["open"]}\n收盤：{price["close"]}\n最高：{price["high"]}\n最低：{price["low"]}'
         fin_text = f'目前本益比：{yf_fin["pe"]}\n每股淨值：{yf_fin["bv"]}\n基本財報：\n{fin}'
-        analyze_text = f'相比去年毛利率是{analyze}'
+        analyze_text = f'相比去年毛利率是{analyze.basic_fin(fin, 1)}\n相比去年營業利益是{analyze.basic_fin(fin, 2)}'
 
         self.root.ids.label.text = label_text
         self.root.ids.financial.text = fin_text
