@@ -5,30 +5,67 @@
         text: '股價查詢'
         BoxLayout:
             orientation: 'vertical'
-            TextInput:
+
+            MDTextField:
                 hint_text: '輸入股票名稱或代碼'
                 multiline: False
                 size_hint: (None, None)
                 height: 50
                 width: 500
-                pos_hint: {'center_x': 0.5}
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 on_text_validate: app.on_enter(self)
-            Label:
+
+            MDCard:
                 id: label
-                size_hint: (1, 1)
+                size_hint: None, None
+                size: 500, 500
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                MDLabel:
+                    id: label_text
+                    text: '目前股價'
+                    font_size: 25
+                    halign: 'center'
+
             Image:
                 id: img
+
     TabbedPanelItem:
         text: '基本財報'
         BoxLayout:
             orientation: 'vertical'
+
             Label:
                 id: financial
                 size_hint: (1, 1)
+
     TabbedPanelItem:
         text: '財報分析'
         BoxLayout:
+            spacing: 20
             orientation: 'vertical'
-            Label:
-                id: analyze
-                size_hint: (1, 1)
+
+            MDCard:
+                id: label
+                size_hint: None, None
+                size: 700, 100
+
+                MDLabel:
+                    halign: 'center'
+                    text: '查詢年份：' + str(int(slider.value))
+
+                MDSlider:
+                    id: slider
+                    hint: True
+                    min: 1
+                    max: 10
+                    step: 1
+                    width: 500
+                    size_hint_x: None
+
+            MDCard:
+                size_hint: None, None
+                size: 700, 300
+
+                MDLabel:
+                    id: analyze
