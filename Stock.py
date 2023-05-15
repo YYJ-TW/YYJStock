@@ -1,6 +1,6 @@
 import re
+import os
 import csv
-import datetime
 import requests
 import pandas as pd
 import yfinance as yf
@@ -143,14 +143,21 @@ class Get:
 
     def goodinfo_to_csv(self, code):
         code = re.sub(r'\.(TW|TWO)$', '', code)
-        url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
-        print(url)
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
-        res = requests.get(url, headers=headers)
-        res.encoding = 'utf-8'
-        soup = BeautifulSoup(res.text, 'html.parser')
-        table = soup.find('div', {'id': 'txtFinDetailData'}).find('table')
-            
-        df = pd.read_html(str(table))[0]
-        df = df[~df.astype(str).apply(lambda row: row.str.contains('[\u4e00-\u9fff]').any(), axis=1)]
-        df.to_csv(f'{code}.csv', index = False)
+        file_path = f'finance/{code}.csv'
+
+        if os.path.isfile(file_path):
+            df = pd.read_csv(file_path)
+            print(df)
+        else:
+            url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
+            headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
+            res = requests.get(url, headers=headers)
+            res.encoding = 'utf-8'
+            soup = BeautifulSoup(res.text, 'html.parser')
+            table = soup.find('div', {'id': 'txtFinDetailData'}).find('table')
+                    
+            df = pd.read_html(str(table), header = None, skiprows = 1)[0]
+            df = df[~df.astype(str).apply(lambda row: row.str.contains('[\u4e00-\u9fff]').any(), axis=1)]
+            df.to_csv(f'finance/{code}.csv', index = False)
+
+        return df
