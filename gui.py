@@ -55,8 +55,7 @@ class YYJStock(MDApp):
         get = Get()
         price = get.price(stock_id)
         yf_fin = get.yf_fin(stock_id)
-        fin = get.goodinfo_fin(stock_id, [0, 12, 13, 14, 15], 5)
-        print(fin)
+        fin = get.goodinfo_to_csv(stock_id, '年度', '營業毛利(%)', '營業利益(%)','稅後淨利(%)', rows = 5)
             
         label_text = f'股票代碼：{stock_id}\n股票名稱：{stock_name}\n公司類型：{stock_type}\n開盤：{price["open"]}\n收盤：{price["close"]}\n最高：{price["high"]}\n最低：{price["low"]}'
         fin_text = f'目前本益比：{yf_fin["pe"]}\n每股淨值：{yf_fin["bv"]}\n基本財報：\n{fin}'
@@ -67,13 +66,14 @@ class YYJStock(MDApp):
     def update(self, value):
         print(value)
         YYJStock().analyze(self.a_stock_id, int(value))
-        
+
+
     def analyze(self, stock_id, years = 2):
         get = Get()
         analyze = Analyze()
-        
-        fin = get.goodinfo_fin(stock_id, [0, 12, 13, 14, 15], 5)
-        analyze_text = f'相比去年毛利率是{analyze.basic_fin(fin, 1, years)}\n相比去年營業利益是{analyze.basic_fin(fin, 2, years)}'
+        fin = get.goodinfo_to_csv(stock_id, '年度', '營業毛利(%)', '營業利益(%)','稅後淨利(%)', rows = 5)
+    
+        analyze_text = f'重製中...'
         self.root.ids.analyze.text = analyze_text
 
 if __name__ == '__main__':

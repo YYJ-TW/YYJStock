@@ -141,23 +141,43 @@ class Get:
 
         return df
 
-    def goodinfo_to_csv(self, code):
+    def find_col(self, code, args, rows):
+        df = pd.read_csv(f'finance/{code}.csv')
+        select_cols = df[list(args)].head(rows) # Find the specified columns
+        result = [' '.join(args)] + select_cols.to_string(index = False).split('\n')[1:]
+        # [' '.join(args)] Header and header spaces
+        # [1:] Avoid 2 headers (ex:年度 ...', '2022 ...' to '2022 ...')
+        return '\n'.join(result)
+
+    def goodinfo_to_csv(self, code, *args, rows: int):
         code = re.sub(r'\.(TW|TWO)$', '', code)
         file_path = f'finance/{code}.csv'
 
         if os.path.isfile(file_path):
-            df = pd.read_csv(file_path)
-            print(df)
+            return self.find_col(code, args, rows)
+
         else:
             url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
             headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
-            res = requests.get(url, headers=headers)
+            res = requests.get(url, headers = headers)
             res.encoding = 'utf-8'
             soup = BeautifulSoup(res.text, 'html.parser')
             table = soup.find('div', {'id': 'txtFinDetailData'}).find('table')
-                    
+
             df = pd.read_html(str(table), header = None, skiprows = 1)[0]
             df = df[~df.astype(str).apply(lambda row: row.str.contains('[\u4e00-\u9fff]').any(), axis=1)]
-            df.to_csv(f'finance/{code}.csv', index = False)
+            df.columns = df.columns.map(lambda x: x[0].replace(' ', '') if isinstance(x, tuple) else x.replace(' ', '')) # Remove spaces in column headers
 
-        return df
+            # Add (%) to the second header
+            col_counts = df.columns.value_counts()
+            duplicated_col = col_counts[col_counts > 1].index # Find duplicate columns (ex: Index(['營業毛利', '...'], dtype='object'))
+
+            for columns in duplicated_col:
+                duplicated_indices = [i for i, col in enumerate(df.columns) if col == columns] # Find the indices of duplicate columns (ex: [8, 12])
+                for index in duplicated_indices[1:]:
+                    df.columns.values[index] += '(%)'
+
+            df.to_csv(f'finance/{code}.csv', index = False)
+            print(f'{code}.csv 財報檔案已創建！')
+
+            return self.find_col(code, args, rows)
