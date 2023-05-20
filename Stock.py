@@ -4,6 +4,7 @@ import csv
 import requests
 import pandas as pd
 import yfinance as yf
+from tabulate import tabulate
 from bs4 import BeautifulSoup
 
 class Get:
@@ -141,22 +142,7 @@ class Get:
 
         return df
 
-    def find_col(self, code, args, rows):
-        df = pd.read_csv(f'finance/{code}.csv')
-        select_cols = df[list(args)].head(rows) # Find the specified columns
-        result = [' '.join(args)] + select_cols.to_string(index = False).split('\n')[1:]
-        # [' '.join(args)] Header and header spaces
-        # [1:] Avoid 2 headers (ex:年度 ...', '2022 ...' to '2022 ...')
-        return '\n'.join(result)
-
-    def goodinfo_to_csv(self, code, *args, rows: int):
-        code = re.sub(r'\.(TW|TWO)$', '', code)
-        file_path = f'finance/{code}.csv'
-
-        if os.path.isfile(file_path):
-            return self.find_col(code, args, rows)
-
-        else:
+    def goodinfo_to_csv(self, code, args, rows):
             url = f'https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID={code}'
             headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
             res = requests.get(url, headers = headers)
@@ -181,3 +167,20 @@ class Get:
             print(f'{code}.csv 財報檔案已創建！')
 
             return self.find_col(code, args, rows)
+
+    def find_col(self, code, args, rows):
+        df = pd.read_csv(f'finance/{code}.csv')
+        select_cols = df[list(args)].head(rows) # Find the specified columns
+        table = tabulate(select_cols, headers='keys', tablefmt='psql')
+        print(table)
+        return table
+
+    def table(self, code, *args, rows: int):
+        code = re.sub(r'\.(TW|TWO)$', '', code)
+        file_path = f'finance/{code}.csv'
+
+        if os.path.isfile(file_path):
+            return self.find_col(code, args, rows)
+            
+        else:
+            return self.goodinfo_to_csv(code, args, rows)
