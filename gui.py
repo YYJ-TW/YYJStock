@@ -61,8 +61,11 @@ class YYJStock(MDApp):
         self.root.ids.label_text.text = label_text
         self.root.ids.financial.text = fin_text
 
-    def analyze(self):
-        analyze_text = f'重製中...'
+        analyze = Analyze()
+        data = analyze.get_specific_field('2330', '稅後EPS', 0, 5)
+        average, changes = analyze.analyze_data(data)
+        analyze_text = f'近 5 年 EPS 平均：{average}\n近 5 年 EPS 漲跌百分比：{changes}'
+
         self.root.ids.analyze.text = analyze_text
 
 if __name__ == '__main__':

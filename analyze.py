@@ -1,26 +1,25 @@
-class Analyze:
-    def basic_fin(self, df, col):
-        values = df.iloc[0:3, col].values
+import pandas as pd
 
-        if values[0] == '-':
-            diff = float(values[2]) - float(values[1])
-            percentage = (diff / float(values[1])) * 100
+class Analyze():
+    def get_specific_field(self, code, col, start_row, end_row):
+        df = pd.read_csv(f'finance/{code}.csv')
 
-            if percentage > 0:
-                judge = f'下跌 {percentage:.2f}%'
-            elif percentage < 0:
-                judge = f'成長 {abs(percentage):.2f}%'
-            else:
-                judge = '持平'
-        else:
-            diff = float(values[1]) - float(values[0])
-            percentage = (diff / float(values[0])) * 100
+        if col not in df.columns:
+            print(f'查無 {col}！')
 
-            if percentage > 0:
-                judge = f'下跌 {percentage:.2f}%'
-            elif percentage < 0:
-                judge = f'成長 {abs(percentage):.2f}%'
-            else:
-                judge = '持平'
+        selected_rows = df.loc[start_row:end_row, col].tolist()
+        selected_rows = pd.to_numeric(selected_rows, errors='coerce') 
+        return selected_rows
 
-        return judge
+    def percentage_change(self, numbers):
+        percentage_changes = []
+        for i in range(1, len(numbers)):
+            change = ((numbers[i-1] - numbers[i]) / numbers[i-1]) * 100
+            sign = f"{'+' if change >= 0 else '-'}{abs(change):.2f}%"
+            percentage_changes.append(sign)
+        return percentage_changes
+
+    def analyze_data(self, data):
+        average = round(sum(data) / len(data), 2)
+        changes = self.percentage_change(data)
+        return average, changes

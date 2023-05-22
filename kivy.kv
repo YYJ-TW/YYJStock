@@ -51,6 +51,7 @@
                 size: 700, 100
 
                 MDLabel:
+                    id: analyze
                     halign: 'center'
                     text: '查詢年份：' + str(int(slider.value))
 
@@ -63,9 +64,6 @@
                     width: 500
                     size_hint_x: None
 
-            MDCard:
-                size_hint: None, None
-                size: 700, 300
-
-                MDLabel:
-                    id: analyze
+            MDLabel:
+                id: analyze
+                halign: 'center'
