@@ -62,10 +62,18 @@ class YYJStock(MDApp):
         self.root.ids.financial.text = fin_text
 
         analyze = Analyze()
-        data = analyze.get_specific_field('2330', '稅後EPS', 0, 5)
-        average, changes = analyze.analyze_data(data)
-        analyze_text = f'近 5 年 EPS 平均：{average}\n近 5 年 EPS 漲跌百分比：{changes}'
+        columns = ['營業毛利(%)', 'ROE(%)', 'ROA(%)', '稅後EPS']
+        years = 5
+        data = analyze.get_specific_field('2330', columns, 0, years)
+        analyze_results = analyze.analyze_data(data)
 
+        analyze_text = ''
+
+        for col, analyze in analyze_results.items():
+            average = analyze['average']
+            changes = analyze['changes']
+            analyze_text += f'{col}\n近 {years} 年平均值：{average}\n近 {years} 年漲幅百分比：{changes}\n\n'
+        
         self.root.ids.analyze.text = analyze_text
 
 if __name__ == '__main__':
