@@ -9,7 +9,7 @@ class Chart():
     def generate_chart(self, code, day):
         today = datetime.today()
         end_date = today.strftime('%Y-%m-%d')
-        start_date = (datetime.strptime(end_date, '%Y-%m-%d') - timedelta(days=day)).strftime('%Y-%m-%d')
+        start_date = (datetime.strptime(end_date, '%Y-%m-%d') - timedelta(days = day)).strftime('%Y-%m-%d')
 
         data = yf.download(code, start = start_date, end = end_date)
         style = mpf.make_mpf_style(base_mpf_style = 'charles', rc = {'font.size': 10})

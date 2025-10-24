@@ -6,6 +6,7 @@ from analyze import Analyze
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.uix.tabbedpanel import TabbedPanel
+import matplotlib.pyplot as plt
 
 kv = '''
 <TextInput>:
@@ -68,11 +69,18 @@ class YYJStock(MDApp):
         analyze_results = analyze.analyze_data(data)
 
         analyze_text = ''
+        colors = ['red', 'blue', 'green', 'orange']
 
         for col, analyze in analyze_results.items():
             average = analyze['average']
             changes = analyze['changes']
+
+            plt.plot(changes, color=colors.pop(0), label=col)
+
             analyze_text += f'{col}\n近 {years} 年平均值：{average}\n近 {years} 年漲幅百分比：{changes}\n\n'
+
+        plt.legend() 
+        plt.show() 
         
         self.root.ids.analyze.text = analyze_text
 

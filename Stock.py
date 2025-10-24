@@ -171,6 +171,7 @@ class Get:
     def find_col(self, code, args, rows):
         df = pd.read_csv(f'finance/{code}.csv')
         select_cols = df[list(args)].head(rows) # Find the specified columns
+        print(select_cols)
         table = tabulate(select_cols, headers='keys', tablefmt='psql')
         print(table)
         return table

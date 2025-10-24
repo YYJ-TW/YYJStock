@@ -2,7 +2,7 @@
 import requests
 import pandas as pd
 
-res = requests.get("http://isin.twse.com.tw/isin/C_public.jsp?strMode=2") #strMode=2 上市 strMode=4 上櫃
+res = requests.get('http://isin.twse.com.tw/isin/C_public.jsp?strMode=2') #strMode=2 上市 strMode=4 上櫃
 df = pd.read_html(res.text)[0] # [0] Get only one
 df.columns = df.iloc[0] # Transposing the first row to columns (有價證券代號及名稱,國際證券辨識號碼(ISIN,Code),上市日,市場別,產業別,CFICode,備註)
 df = df.iloc[1:] # Columns and rows are duplicated, so removed
