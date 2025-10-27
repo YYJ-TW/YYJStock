@@ -19,16 +19,18 @@ YYJStock/
 - **折現率 $r$:** 10% 股市平均回報率大約是 7~10%
 - **永續成長率 $g_\infty$:** 2% 不超過 GDP 數值
 
+公司現值（per-share）PV：
 ```math
-PV = \sum_{t=1}^5 \frac{EPS0(1+gCAGR)^t}{(1+r)^t}+\sum_{t=6}^{10}\frac{EPS0(1+gCAGR)^5(1+gGDP)^{t-5})}{(1+r)^t}+\frac{TV_{10}}{(1+r)^{10}}
+PV = \sum_{t=1}^5 \frac{EPS_0(1+gCAGR)^t}{(1+r)^t}+\sum_{t=6}^{10}\frac{EPS_0(1+gCAGR)^5(1+gGDP)^{t-5})}{(1+r)^t}+\frac{TV_{10}}{(1+r)^{10}}
 ```
 
-使用 Gordon Growth Model 計算 Terminal Value
+使用 Gordon Growth Model 計算 Terminal Value：
 ```math
-TV_{10}=\frac{EPS_{10}(1+g_\infty)}{r-g_\infty}
+TV_{10}=\frac{EPS_{10}(1+g_\infty)}{r-g_\infty} \qquad 
+EPS_{10}=EPS_0 (1+gCGAR)^5(1+gGDP)^5
 ```
 
-Compound Annual Growth Rate（CAGR）年複合成長率
+Compound Annual Growth Rate（CAGR）年複合成長率：
 ```math
 CAGR(\%)=\frac{Ending Value}{Beginning Value}^{1/t}-1
 ```
