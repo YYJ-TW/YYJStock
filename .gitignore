@@ -1,5 +1,51 @@
-venv
-*.pyc
-test.py
-*.DS_Store
-__pycache__
+# DCF Analysis Results
+dcf_results/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Finance data (keep finance directory structure but ignore CSV files)
+finance/*.csv
+
+# Progress files
+progress_*.json
+progress_*.csv
