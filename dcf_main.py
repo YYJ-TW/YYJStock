@@ -2,14 +2,17 @@
 台股 DCF 二階段折現模型估值
 
 用法:
-    python3.8 dcf_main.py                   # 顯示可用產業
-    python3.8 dcf_main.py 半導體業           # 分析特定產業，產業名稱：csv/twse.csv 或 csv/tpex.csv
-    python3.8 dcf_main.py 2330              # 分析單一股票
-    python3.8 dcf_main.py watchlist         # 自選股
-
-analyze_industry(industry_name)     分析特定產業，產業名稱：csv/twse.csv 或 csv/tpex.csv
-analyze_single(code)                輸入股票代碼查詢單一股票之折現模型估值
-watchlist()                         自選股
+    python3.8 dcf_main.py                      # 顯示可用產業
+    python3.8 dcf_main.py 半導體業              # 分析特定產業
+    python3.8 dcf_main.py 2330                 # 分析單一股票
+    python3.8 dcf_main.py watchlist            # 自選股
+    
+    # 手動設定成長率（可選）
+    python3.8 dcf_main.py 2330 15              # 1-5年成長率 15%
+    python3.8 dcf_main.py 2330 0.15            # 1-5年成長率 0.15 (15%)
+    python3.8 dcf_main.py 2330 15 3            # 1-5年 15%，6-10年 3%
+    python3.8 dcf_main.py 半導體業 20 3         # 產業分析用 20% 和 3%
+    python3.8 dcf_main.py watchlist 15         # 自選股用 15% 成長率
 """
 
 import sys
@@ -91,10 +94,20 @@ def load_stocks_from_csv():
     return stocks
 
 
-def calculate_dcf(current_eps, growth_rate, discount_rate=0.10, mid_term_growth=0.03, 
-                  perpetual_growth=0.02, years=10):
-    """計算 DCF 合理價值"""
-    if not current_eps or not growth_rate or current_eps <= 0:
+def calculate_dcf(current_eps, growth_rate_1_5y, growth_rate_6_10y=0.03, 
+                  discount_rate=0.10, perpetual_growth=0.02, years=10):
+    """
+    計算 DCF 合理價值
+    
+    Args:
+        current_eps: 當前 EPS
+        growth_rate_1_5y: 1-5年成長率
+        growth_rate_6_10y: 6-10年成長率（預設3%）
+        discount_rate: 折現率（預設10%）
+        perpetual_growth: 永續成長率（預設2%）
+        years: 預測年數（預設10年）
+    """
+    if not current_eps or growth_rate_1_5y is None or current_eps <= 0:
         return None
     
     EPS0 = current_eps  # 每股參數：最新 EPS
@@ -103,9 +116,9 @@ def calculate_dcf(current_eps, growth_rate, discount_rate=0.10, mid_term_growth=
     cash_flows = []
     for t in range(1, years + 1):
         if t <= 5:
-            cf = EPS0 * (1 + growth_rate) ** t
+            cf = EPS0 * (1 + growth_rate_1_5y) ** t
         else:
-            cf = EPS0 * (1 + growth_rate) ** 5 * (1 + mid_term_growth) ** (t - 5)
+            cf = EPS0 * (1 + growth_rate_1_5y) ** 5 * (1 + growth_rate_6_10y) ** (t - 5)
         cash_flows.append(cf)
     
     present_values = [cf / (1 + r) ** t for t, cf in enumerate(cash_flows, start=1)]
@@ -118,41 +131,62 @@ def calculate_dcf(current_eps, growth_rate, discount_rate=0.10, mid_term_growth=
     return fair_value
 
 
-def analyze_stock_full(stock, api):
+def analyze_stock_full(stock, api, manual_1_5y=None, manual_6_10y=None):
     """
     分析單一股票
     兩種估值結果：樂觀 EPS CAGR / 保守 內部成長率
+    
+    Args:
+        stock: 股票資訊
+        api: API 物件
+        manual_1_5y: 手動設定1-5年成長率
+        manual_6_10y: 手動設定6-10年成長率
     """
     stock_data = api.get_stock_data(stock)
     
     if not stock_data:
         return None
     
-    # 使用 EPS CAGR 計算 DCF
-    eps_cagr = stock_data['eps_cagr']
-    if eps_cagr is None or eps_cagr <= 0:
-        # 若無歷史 CAGR，使用產業平均
-        industry = stock.get('industry', 'Unknown')
-        eps_cagr = INDUSTRY_CAGR.get(industry, 0.10)
-        cagr_source = f"產業平均({stock.get('industry', 'Unknown')})"
+    # 決定使用的成長率
+    if manual_1_5y is not None:
+        # 使用手動設定的1-5年成長率
+        eps_cagr = manual_1_5y
+        cagr_source = '手動設定'
     else:
-        cagr_source = stock_data['eps_cagr_source']
+        # 使用系統計算的 CAGR
+        eps_cagr = stock_data['eps_cagr']
+        if eps_cagr is None or eps_cagr <= 0:
+            # 若無歷史 CAGR，使用產業平均
+            industry = stock.get('industry', 'Unknown')
+            eps_cagr = INDUSTRY_CAGR.get(industry, 0.10)
+            cagr_source = f"產業平均({stock.get('industry', 'Unknown')})"
+        else:
+            cagr_source = stock_data['eps_cagr_source']
     
-    dcf_eps = calculate_dcf(stock_data['eps_used'], eps_cagr)
+    # 決定6-10年成長率（預設3%）
+    growth_6_10y = manual_6_10y if manual_6_10y is not None else 0.03
     
-    # 使用內部成長率計算 DCF
-    internal_growth = stock_data['internal_growth']
-    if internal_growth and internal_growth > 0:
-        dcf_internal = calculate_dcf(stock_data['eps_used'], internal_growth)
-        internal_source = stock_data['internal_growth_source']
+    dcf_eps = calculate_dcf(stock_data['eps_used'], eps_cagr, growth_6_10y)
+    
+    # 使用內部成長率計算 DCF（只在非手動模式）
+    if manual_1_5y is None:
+        internal_growth = stock_data['internal_growth']
+        if internal_growth and internal_growth > 0:
+            dcf_internal = calculate_dcf(stock_data['eps_used'], internal_growth, growth_6_10y)
+            internal_source = stock_data['internal_growth_source']
+        else:
+            dcf_internal = None
+            internal_source = None
     else:
-        dcf_internal = None
+        # 手動模式不計算內部成長率法
+        internal_growth = None
         internal_source = None
+        dcf_internal = None
     
     if not dcf_eps or dcf_eps <= 0:
         return None
     
-    # 淺在空間 %（上漲空間）
+    # 潛在空間 %（上漲空間）
     upside_eps = ((dcf_eps - stock_data['current_price']) / stock_data['current_price']) * 100
     upside_internal = ((dcf_internal - stock_data['current_price']) / stock_data['current_price']) * 100 if dcf_internal else None
     
@@ -165,6 +199,7 @@ def analyze_stock_full(stock, api):
         'eps_source': stock_data['eps_source'],
         'eps_cagr': round(eps_cagr * 100, 2),
         'cagr_source': cagr_source,
+        'growth_6_10y': round(growth_6_10y * 100, 2),
         'internal_growth': round(internal_growth * 100, 2) if internal_growth else None,
         'internal_source': internal_source,
         'dcf_eps': round(dcf_eps, 2),
@@ -193,7 +228,7 @@ def show_industries():
     print("="*80 + "\n")
 
 
-def analyze_industry(industry_name):
+def analyze_industry(industry_name, manual_1_5y=None, manual_6_10y=None):
     print(f"\n{'='*100}")
     print(f"分析產業: {industry_name}")
     print(f"{'='*100}\n")
@@ -209,8 +244,16 @@ def analyze_industry(industry_name):
         return
     
     print(f"共 {len(industry_stocks)} 檔股票")
-    industry_cagr = INDUSTRY_CAGR.get(industry_name, 0.10)
-    print(f"產業平均 CAGR: {industry_cagr*100}%\n")
+    
+    if manual_1_5y is not None:
+        print(f"1-5年成長率: {manual_1_5y*100}% (手動設定)")
+    else:
+        industry_cagr = INDUSTRY_CAGR.get(industry_name, 0.10)
+        print(f"產業平均 CAGR: {industry_cagr*100}%")
+    
+    if manual_6_10y is not None:
+        print(f"6-10年成長率: {manual_6_10y*100}% (手動設定)")
+    print()
     
     # Table Header
     header = f"{'代碼':<6}{'名稱':<8}{'價格':>8}  {'潛在空間%':>10}  {'股票價值':>10}  {'CAGR':>7}  {'內成':>7}  來源"
@@ -223,7 +266,7 @@ def analyze_industry(industry_name):
         print(f"\r分析進度: {i}/{len(industry_stocks)} - {stock['code']} {stock['name']}", 
               end="", flush=True)
         
-        result = analyze_stock_full(stock, api)
+        result = analyze_stock_full(stock, api, manual_1_5y, manual_6_10y)
         
         if result:
             results.append(result)
@@ -236,18 +279,15 @@ def analyze_industry(industry_name):
                 sources.append(result['internal_source'])
             source_str = ', '.join(sources) if sources else 'N/A'
             
+            internal_col = f"{result['internal_growth']:>6.1f}%" if result['internal_growth'] else "   N/A"
+            
             line = (f"{result['code']:<6}"
                    f"{result['name']:<8}"
                    f"{result['price']:>8.2f}  "
                    f"{result['upside_eps']:>9.2f}%  "
                    f"{result['dcf_eps']:>9.2f}  "
                    f"{result['eps_cagr']:>6.1f}%  "
-                   f"{result['internal_growth']:>6.1f}%" if result['internal_growth'] else "   N/A")
-            
-            if result['internal_growth']:
-                line += f"  {source_str}"
-            else:
-                line += f"     N/A  {source_str}"
+                   f"{internal_col}  {source_str}")
             
             print(f"\r{line}")
         
@@ -277,7 +317,7 @@ def analyze_industry(industry_name):
         save_results(results, industry_name)
 
 
-def analyze_single(code):
+def analyze_single(code, manual_1_5y=None, manual_6_10y=None):
     stocks = load_stocks_from_csv()
     api = StockDataAPI()
     
@@ -291,7 +331,27 @@ def analyze_single(code):
     print(f"DCF 估值分析: {stock['code']} {stock['name']} ({stock['industry']})")
     print(f"{'='*80}\n")
     
-    result = analyze_stock_full(stock, api)
+    # 先獲取歷史 EPS 資料
+    # 若要取 5 年資料 years = 6，因為要忽略最新的一年（最新一年無完整 4 季 EPS）
+    eps_history = api.get_eps_history_finmind(stock['code'], years=6)
+    
+    if eps_history is not None and len(eps_history) > 0:
+        print(f"========== 過去5年 EPS（2019-2024）==========")
+        # 顯示所有歷史數據（應該是2019-2024）
+        for _, row in eps_history.iterrows():
+            print(f"  {int(row['Year'])}: ${row['EPS']:.2f}")
+        print()
+    
+    # 顯示手動參數（如果有）
+    if manual_1_5y is not None or manual_6_10y is not None:
+        print(f"========== 手動參數 ==========")
+        if manual_1_5y is not None:
+            print(f"  1-5年成長率:  {manual_1_5y*100:.2f}% (手動設定)")
+        if manual_6_10y is not None:
+            print(f"  6-10年成長率: {manual_6_10y*100:.2f}% (手動設定)")
+        print()
+    
+    result = analyze_stock_full(stock, api, manual_1_5y, manual_6_10y)
     
     if result:
         # 資料來源區塊
@@ -309,7 +369,7 @@ def analyze_single(code):
         
         print(f"========== 方法1: EPS CAGR ==========")
         print(f"  1-5年成長率:  {result['eps_cagr']:.2f}%")
-        print(f"  6-10年成長率: 3.00%")
+        print(f"  6-10年成長率: {result['growth_6_10y']:.2f}%")
         print(f"  折現率:       10.00%")
         print(f"  永續成長率:   2.00%")
         print()
@@ -320,7 +380,7 @@ def analyze_single(code):
         if result['dcf_internal'] and result['internal_source']:
             print(f"========== 方法2: 內部成長率 ==========")
             print(f"  1-5年成長率:  {result['internal_growth']:.2f}%")
-            print(f"  6-10年成長率: 3.00%")
+            print(f"  6-10年成長率: {result['growth_6_10y']:.2f}%")
             print(f"  折現率:       10.00%")
             print(f"  永續成長率:   2.00%")
             print()
@@ -341,7 +401,7 @@ def analyze_single(code):
         print("分析失敗 - 可能是股票代碼錯誤或是 TWSE API Rate Limit 超出")
 
 
-def watchlist():
+def watchlist(manual_1_5y=None, manual_6_10y=None):
     codes = ['2453', '8103', '6213']
     
     print(f"\n{'='*110}")
@@ -351,6 +411,14 @@ def watchlist():
     stocks = load_stocks_from_csv()
     api = StockDataAPI()
     
+    # 顯示手動參數（如果有）
+    if manual_1_5y is not None:
+        print(f"1-5年成長率: {manual_1_5y*100}% (手動設定)")
+    if manual_6_10y is not None:
+        print(f"6-10年成長率: {manual_6_10y*100}% (手動設定)")
+    if manual_1_5y or manual_6_10y:
+        print()
+    
     header = f"{'代碼':<6}{'名稱':<8}{'價格':>8}  {'潛在空間%':>10}  {'股票價值':>10}  {'CAGR':>7}  {'內成':>7}  來源"
     print(header)
     print("-" * 95)
@@ -358,7 +426,7 @@ def watchlist():
     for code in codes:
         stock = next((s for s in stocks if s['code'] == code), None)
         if stock:
-            result = analyze_stock_full(stock, api)
+            result = analyze_stock_full(stock, api, manual_1_5y, manual_6_10y)
             
             if result:
                 upside_str = f"{result['upside_eps']:>6.2f}%"
@@ -373,18 +441,15 @@ def watchlist():
                     sources.append(result['internal_source'])
                 source_str = ', '.join(sources) if sources else 'N/A'
                 
+                internal_col = f"{result['internal_growth']:>6.1f}%" if result['internal_growth'] else "   N/A"
+                
                 line = (f"{result['code']:<6}"
                        f"{result['name']:<8}"
                        f"{result['price']:>8.2f}  "
                        f"{result['upside_eps']:>9.2f}%  "
                        f"{result['dcf_eps']:>9.2f}  "
                        f"{result['eps_cagr']:>6.1f}%  "
-                       f"{result['internal_growth']:>6.1f}%" if result['internal_growth'] else "   N/A")
-                
-                if result['internal_growth']:
-                    line += f"  {source_str}"
-                else:
-                    line += f"     N/A  {source_str}"
+                       f"{internal_col}  {source_str}")
                 
                 print(line)
         
@@ -435,15 +500,39 @@ def save_single(result):
     print(f"已保存到: {history_file}")
 
 
+def parse_growth_rate(value):
+    """大於 1 視為 %，小於 1 則無須轉換"""
+    try:
+        rate = float(value)
+        if rate > 1:
+            rate = rate / 100
+        return rate
+    except:
+        return None
+
+
 def main():
+    # 解析參數
+    manual_1_5y = None
+    manual_6_10y = None
+    
+    if len(sys.argv) >= 3:
+        # 有第2個參數：1-5年成長率
+        manual_1_5y = parse_growth_rate(sys.argv[2])
+    
+    if len(sys.argv) >= 4:
+        # 有第3個參數：6-10年成長率
+        manual_6_10y = parse_growth_rate(sys.argv[3])
+    
+    # 執行對應功能
     if len(sys.argv) == 1 or sys.argv[1] == 'list':
         show_industries()
     elif sys.argv[1] == 'watchlist':
-        watchlist()
+        watchlist(manual_1_5y, manual_6_10y)
     elif sys.argv[1].isdigit():
-        analyze_single(sys.argv[1])
+        analyze_single(sys.argv[1], manual_1_5y, manual_6_10y)
     else:
-        analyze_industry(sys.argv[1])
+        analyze_industry(sys.argv[1], manual_1_5y, manual_6_10y)
 
 
 if __name__ == '__main__':

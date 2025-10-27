@@ -42,7 +42,10 @@ CAGR(\%)=\frac{Ending Value}{Beginning Value}^{1/t}-1
 python3.8 dcf_main.py           # 顯示所有可用產業
 python3.8 dcf_main.py 半導體業   # 分析特定產業（例如：半導體業）
 python3.8 dcf_main.py 2330      # 分析單一股票（例如：台積電）
-python3.8 dcf_main.py watchlist # 快速測試 10 檔大型股
+python3.8 dcf_main.py watchlist # 自選股
+# 可以選填兩個參數，第一個參數表示 1-5 年成長率，第二個參數表示 6-10 年成長率
+# 如有法人預估 EPS 則適用，計算 CAGR 將其填入 1-5 年成長率，假設 1-5 年是 10，6-10 年是 4
+python3.8 dcf_main.py 3217 10 4
 ```
 注意：產業平均 CAGR 請勿參考，請手動設定數值。可參考 Global Market Insights 的產業 CAGR 資料：https://www.gminsights.com/
 
