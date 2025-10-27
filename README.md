@@ -18,11 +18,21 @@ YYJStock/
 - **6-10 年成長率:** 較難預估，通常是填 GDP 的長期成長率 2~3%
 - **折現率 $r$:** 10% 股市平均回報率大約是 7~10%
 - **永續成長率 $g_\infty$:** 2% 不超過 GDP 數值
-$$PV = \sum_{t=1}^5 \frac{EPS0(1+gCAGR)^t}{(1+r)^t}+\sum_{t=6}^{10}\frac{EPS0(1+gCAGR)^5(1+gGDP)^{t-5})}{(1+r)^t}+\frac{TV_{10}}{(1+r)^{10}}$$
+
+```math
+PV = \sum_{t=1}^5 \frac{EPS0(1+gCAGR)^t}{(1+r)^t}+\sum_{t=6}^{10}\frac{EPS0(1+gCAGR)^5(1+gGDP)^{t-5})}{(1+r)^t}+\frac{TV_{10}}{(1+r)^{10}}
+```
+
 使用 Gordon Growth Model 計算 Terminal Value
-$$TV_{10}=\frac{EPS_{10}(1+g_\infty)}{r-g_\infty}$$
+```math
+TV_{10}=\frac{EPS_{10}(1+g_\infty)}{r-g_\infty}
+```
+
 Compound Annual Growth Rate（CAGR）年複合成長率
-$$CAGR(\%)=\frac{Ending Value}{Beginning Value}^{1/t}-1$$
+```math
+CAGR(\%)=\frac{Ending Value}{Beginning Value}^{1/t}-1
+```
+
 [手動 DCF 計算器](2_stage_dcf.py)
 
 ### 使用方法
