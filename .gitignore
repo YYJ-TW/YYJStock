@@ -1,6 +1,3 @@
-# DCF Analysis Results
-dcf_results/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -41,7 +38,6 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
-*.ipynb
 
 # Finance data (keep finance directory structure but ignore CSV files)
 finance/*.csv
@@ -49,3 +45,8 @@ finance/*.csv
 # Progress files
 progress_*.json
 progress_*.csv
+
+# Keep formula images
+!img/dcf_formula.png
+!img/terminal_value.png
+!img/cagr_formula.png
